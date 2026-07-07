@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "NexaDecide"
+version = "1.0.0"
+id = "artifacts/nexadecide"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19503
+
+[services.development]
+run = "pnpm --filter @workspace/nexadecide run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/nexadecide", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/nexadecide/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19503"
+BASE_PATH = "/"
