@@ -5,7 +5,9 @@
  * NexaDecide AI Decision Intelligence Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { ListAlertsSeverity } from './listAlertsSeverity';
 
-export interface HealthStatus {
-  status: string;
-}
+export type ListAlertsParams = {
+severity?: ListAlertsSeverity;
+isRead?: boolean;
+};

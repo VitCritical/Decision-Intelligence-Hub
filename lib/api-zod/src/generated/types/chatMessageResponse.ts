@@ -5,7 +5,9 @@
  * NexaDecide AI Decision Intelligence Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { ChatMessage } from './chatMessage';
 
-export interface HealthStatus {
-  status: string;
+export interface ChatMessageResponse {
+  userMessage: ChatMessage;
+  assistantMessage: ChatMessage;
 }

@@ -3,20 +3,36 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: NexaDecide AI Decision Intelligence Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: dashboard
+    description: Business health dashboard
+  - name: insights
+    description: AI-generated insights
+  - name: rootcause
+    description: Root cause analysis
+  - name: forecast
+    description: Business forecasting
+  - name: recommendations
+    description: AI recommendations
+  - name: alerts
+    description: Business alerts
+  - name: chat
+    description: AI chat interface
+  - name: metrics
+    description: Raw business metrics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +40,311 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get business health dashboard data
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardData"
+
+  /insights:
+    get:
+      operationId: listInsights
+      tags: [insights]
+      summary: List all AI-generated insights
+      parameters:
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [critical, warning, positive]
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of insights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Insight"
+
+  /insights/generate:
+    post:
+      operationId: generateInsights
+      tags: [insights]
+      summary: Trigger AI to generate fresh insights
+      responses:
+        "200":
+          description: Generated insights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Insight"
+
+  /insights/{id}/read:
+    patch:
+      operationId: markInsightRead
+      tags: [insights]
+      summary: Mark an insight as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated insight
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Insight"
+
+  /root-cause/{metricName}:
+    get:
+      operationId: getRootCause
+      tags: [rootcause]
+      summary: Get AI root cause analysis for a metric
+      parameters:
+        - name: metricName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Root cause analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RootCauseAnalysis"
+
+  /forecast:
+    get:
+      operationId: listForecasts
+      tags: [forecast]
+      summary: Get forecast data for all metrics
+      responses:
+        "200":
+          description: Forecast collection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForecastCollection"
+
+  /forecast/generate:
+    post:
+      operationId: generateForecasts
+      tags: [forecast]
+      summary: Trigger AI forecast generation
+      responses:
+        "200":
+          description: Generated forecasts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForecastCollection"
+
+  /recommendations:
+    get:
+      operationId: listRecommendations
+      tags: [recommendations]
+      summary: List all AI recommendations
+      parameters:
+        - name: urgency
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [high, medium, low]
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, in_progress, done, dismissed]
+      responses:
+        "200":
+          description: List of recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Recommendation"
+
+  /recommendations/{id}:
+    patch:
+      operationId: updateRecommendation
+      tags: [recommendations]
+      summary: Update recommendation status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecommendationUpdate"
+      responses:
+        "200":
+          description: Updated recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recommendation"
+
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List all alerts
+      parameters:
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [critical, warning, info]
+        - name: isRead
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+
+  /alerts/{id}/read:
+    patch:
+      operationId: markAlertRead
+      tags: [alerts]
+      summary: Mark an alert as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated alert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+
+  /chat/messages:
+    post:
+      operationId: sendChatMessage
+      tags: [chat]
+      summary: Send a message to AI and get response
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatMessageInput"
+      responses:
+        "200":
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessageResponse"
+
+  /chat/history:
+    get:
+      operationId: getChatHistory
+      tags: [chat]
+      summary: Get chat message history
+      responses:
+        "200":
+          description: Chat history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+
+    delete:
+      operationId: clearChatHistory
+      tags: [chat]
+      summary: Clear all chat history
+      responses:
+        "200":
+          description: Cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /metrics:
+    get:
+      operationId: listMetrics
+      tags: [metrics]
+      summary: Get raw business metrics
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [sales, inventory, finance, customer, operations]
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Metrics data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MetricDataPoint"
+
+  /metrics/seed:
+    post:
+      operationId: seedMetrics
+      tags: [metrics]
+      summary: Seed the database with mock business data
+      responses:
+        "200":
+          description: Seed result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +355,401 @@ components:
       required:
         - status
 
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    SubScore:
+      type: object
+      properties:
+        score:
+          type: number
+        trend:
+          type: string
+          enum: [up, down, stable]
+        label:
+          type: string
+      required:
+        - score
+        - trend
+        - label
+
+    BusinessHealthScore:
+      type: object
+      properties:
+        overall:
+          type: number
+        sales:
+          $ref: "#/components/schemas/SubScore"
+        inventory:
+          $ref: "#/components/schemas/SubScore"
+        finance:
+          $ref: "#/components/schemas/SubScore"
+        customer:
+          $ref: "#/components/schemas/SubScore"
+        operations:
+          $ref: "#/components/schemas/SubScore"
+        summary:
+          type: string
+      required:
+        - overall
+        - sales
+        - inventory
+        - finance
+        - customer
+        - operations
+        - summary
+
+    Insight:
+      type: object
+      properties:
+        id:
+          type: integer
+        severity:
+          type: string
+          enum: [critical, warning, positive]
+        category:
+          type: string
+        title:
+          type: string
+        explanation:
+          type: string
+        relatedMetric:
+          type: ["string", "null"]
+        generatedAt:
+          type: string
+        isRead:
+          type: boolean
+      required:
+        - id
+        - severity
+        - category
+        - title
+        - explanation
+        - relatedMetric
+        - generatedAt
+        - isRead
+
+    RootCauseContributor:
+      type: object
+      properties:
+        factor:
+          type: string
+        likelihood:
+          type: string
+          enum: [high, medium, low]
+        description:
+          type: string
+      required:
+        - factor
+        - likelihood
+        - description
+
+    HistoricalPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        value:
+          type: number
+        isAnomaly:
+          type: boolean
+      required:
+        - date
+        - value
+        - isAnomaly
+
+    RootCauseAnalysis:
+      type: object
+      properties:
+        metricName:
+          type: string
+        anomalySummary:
+          type: string
+        rootCause:
+          type: string
+        contributors:
+          type: array
+          items:
+            $ref: "#/components/schemas/RootCauseContributor"
+        historicalData:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoricalPoint"
+        recommendation:
+          type: string
+      required:
+        - metricName
+        - anomalySummary
+        - rootCause
+        - contributors
+        - historicalData
+        - recommendation
+
+    ForecastPoint:
+      type: object
+      properties:
+        forecastDate:
+          type: string
+        predictedValue:
+          type: number
+        confidencePercent:
+          type: number
+        lowerBound:
+          type: number
+        upperBound:
+          type: number
+        isHistorical:
+          type: boolean
+      required:
+        - forecastDate
+        - predictedValue
+        - confidencePercent
+        - lowerBound
+        - upperBound
+        - isHistorical
+
+    ForecastSeries:
+      type: object
+      properties:
+        metricName:
+          type: string
+        unit:
+          type: string
+        overallConfidence:
+          type: number
+        aiCommentary:
+          type: string
+        points:
+          type: array
+          items:
+            $ref: "#/components/schemas/ForecastPoint"
+      required:
+        - metricName
+        - unit
+        - overallConfidence
+        - aiCommentary
+        - points
+
+    ForecastCollection:
+      type: object
+      properties:
+        sales:
+          $ref: "#/components/schemas/ForecastSeries"
+        inventory:
+          $ref: "#/components/schemas/ForecastSeries"
+        expenses:
+          $ref: "#/components/schemas/ForecastSeries"
+        cashflow:
+          $ref: "#/components/schemas/ForecastSeries"
+        generatedAt:
+          type: string
+      required:
+        - sales
+        - inventory
+        - expenses
+        - cashflow
+        - generatedAt
+
+    Recommendation:
+      type: object
+      properties:
+        id:
+          type: integer
+        urgency:
+          type: string
+          enum: [high, medium, low]
+        problemStatement:
+          type: string
+        rootCause:
+          type: string
+        action:
+          type: string
+        expectedOutcome:
+          type: string
+        expectedImpactPercent:
+          type: number
+        status:
+          type: string
+          enum: [pending, in_progress, done, dismissed]
+        generatedAt:
+          type: string
+      required:
+        - id
+        - urgency
+        - problemStatement
+        - rootCause
+        - action
+        - expectedOutcome
+        - expectedImpactPercent
+        - status
+        - generatedAt
+
+    RecommendationUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, in_progress, done, dismissed]
+      required:
+        - status
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+        severity:
+          type: string
+          enum: [critical, warning, info]
+        title:
+          type: string
+        explanation:
+          type: string
+        metricName:
+          type: string
+        metricValue:
+          type: number
+        threshold:
+          type: number
+        triggeredAt:
+          type: string
+        isRead:
+          type: boolean
+      required:
+        - id
+        - severity
+        - title
+        - explanation
+        - metricName
+        - metricValue
+        - threshold
+        - triggeredAt
+        - isRead
+
+    ChatMessageInput:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+      required:
+        - message
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - role
+        - content
+        - createdAt
+
+    ChatMessageResponse:
+      type: object
+      properties:
+        userMessage:
+          $ref: "#/components/schemas/ChatMessage"
+        assistantMessage:
+          $ref: "#/components/schemas/ChatMessage"
+      required:
+        - userMessage
+        - assistantMessage
+
+    MetricDataPoint:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        category:
+          type: string
+        metricName:
+          type: string
+        value:
+          type: number
+        unit:
+          type: string
+      required:
+        - id
+        - date
+        - category
+        - metricName
+        - value
+        - unit
+
+    DashboardData:
+      type: object
+      properties:
+        healthScore:
+          $ref: "#/components/schemas/BusinessHealthScore"
+        topInsights:
+          type: array
+          items:
+            $ref: "#/components/schemas/Insight"
+        topAlerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+        forecastPreview:
+          type: array
+          items:
+            $ref: "#/components/schemas/ForecastPreviewItem"
+        salesLast7Days:
+          type: array
+          items:
+            $ref: "#/components/schemas/SalesDataPoint"
+      required:
+        - healthScore
+        - topInsights
+        - topAlerts
+        - forecastPreview
+        - salesLast7Days
+
+    ForecastPreviewItem:
+      type: object
+      properties:
+        metric:
+          type: string
+        value:
+          type: string
+        unit:
+          type: string
+        confidence:
+          type: number
+        trend:
+          type: string
+          enum: [up, down, stable]
+      required:
+        - metric
+        - value
+        - unit
+        - confidence
+        - trend
+
+    SalesDataPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        value:
+          type: number
+      required:
+        - date
+        - value

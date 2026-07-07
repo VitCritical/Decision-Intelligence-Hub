@@ -5,7 +5,10 @@
  * NexaDecide AI Decision Intelligence Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { SubScoreTrend } from './subScoreTrend';
 
-export interface HealthStatus {
-  status: string;
+export interface SubScore {
+  score: number;
+  trend: SubScoreTrend;
+  label: string;
 }

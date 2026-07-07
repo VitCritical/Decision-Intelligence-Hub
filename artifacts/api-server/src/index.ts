@@ -1,5 +1,8 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { db } from "@workspace/db";
+import { metricsTable } from "@workspace/db";
+import { seedDatabase } from "./lib/seed";
 
 const rawPort = process.env["PORT"];
 
@@ -15,11 +18,26 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-app.listen(port, (err) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
-    process.exit(1);
+async function bootstrap() {
+  // Auto-seed if database is empty
+  try {
+    const existing = await db.select().from(metricsTable).limit(1);
+    if (existing.length === 0) {
+      logger.info("Empty database detected — seeding with demo data...");
+      await seedDatabase();
+      logger.info("Seed complete");
+    }
+  } catch (err) {
+    logger.error({ err }, "Failed to check/seed database — continuing anyway");
   }
 
-  logger.info({ port }, "Server listening");
-});
+  app.listen(port, (err) => {
+    if (err) {
+      logger.error({ err }, "Error listening on port");
+      process.exit(1);
+    }
+    logger.info({ port }, "Server listening");
+  });
+}
+
+bootstrap();

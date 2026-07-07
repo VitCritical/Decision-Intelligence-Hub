@@ -5,7 +5,8 @@
  * NexaDecide AI Decision Intelligence Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { RecommendationUpdateStatus } from './recommendationUpdateStatus';
 
-export interface HealthStatus {
-  status: string;
+export interface RecommendationUpdate {
+  status: RecommendationUpdateStatus;
 }

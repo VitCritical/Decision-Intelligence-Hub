@@ -4,29 +4,40 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 
-const queryClient = new QueryClient();
+import AppLayout from './components/layout/AppLayout';
+import Dashboard from './pages/Dashboard';
+import Insights from './pages/Insights';
+import RootCause from './pages/RootCause';
+import Forecast from './pages/Forecast';
+import Recommendations from './pages/Recommendations';
+import Chat from './pages/Chat';
+import Alerts from './pages/Alerts';
+import Settings from './pages/Settings';
 
-function Home() {
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Replit Agent is building...
-        </h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Your app will appear here once it's ready.
-        </p>
-      </div>
-    </div>
-  );
-}
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    },
+  },
+});
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route component={NotFound} />
-    </Switch>
+    <AppLayout>
+      <Switch>
+        <Route path="/" component={Dashboard} />
+        <Route path="/insights" component={Insights} />
+        <Route path="/root-cause" component={RootCause} />
+        <Route path="/forecast" component={Forecast} />
+        <Route path="/recommendations" component={Recommendations} />
+        <Route path="/chat" component={Chat} />
+        <Route path="/alerts" component={Alerts} />
+        <Route path="/settings" component={Settings} />
+        <Route component={NotFound} />
+      </Switch>
+    </AppLayout>
   );
 }
 
