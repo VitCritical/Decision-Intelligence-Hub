@@ -1,0 +1,288 @@
+Project Idea: AI Decision Intelligence Platform
+Official Problem Statement
+
+Managers require intelligent recommendations instead of raw reports to make better business decisions.
+
+The Real-World Problem
+
+Businesses generate large amounts of data every day:
+
+Sales
+Expenses
+Inventory
+Customer orders
+Marketing campaigns
+Employee performance
+Website traffic
+
+However, most business owners only see dashboards and reports.
+
+The challenge is that reports tell you what happened, but not why it happened or what to do next.
+
+For example:
+
+Dashboard:
+
+Sales ↓ 18%
+Customer retention ↓ 12%
+Inventory ↑ 30%
+
+A manager still has to analyze:
+
+Why did sales drop?
+Which product caused it?
+Is inventory overstocked?
+What action should I take?
+
+Many SMEs don't have dedicated data analysts, so valuable data goes unused.
+
+Proposed Solution
+
+An AI-powered Decision Intelligence platform that continuously analyzes business data and provides:
+
+Business insights
+Root cause analysis
+Risk detection
+Demand forecasting
+AI-generated recommendations
+Action plans
+
+Instead of just showing charts, the system tells business owners what happened, why it happened, and what they should do next.
+
+Example
+Traditional Dashboard
+Today's Sales
+
+₹58,200
+
+Yesterday
+
+₹71,000
+
+Manager still has questions.
+
+AI Decision Intelligence
+Sales decreased by 18%.
+
+Possible reasons:
+
+✓ Weekend footfall reduced
+✓ Best-selling product out of stock
+✓ Repeat customer purchases declined
+
+Recommended actions:
+
+• Restock Product A
+• Send offers to inactive customers
+• Increase Instagram promotions this weekend
+
+Predicted recovery:
++12% next week if recommendations are implemented.
+Core Features
+1. AI Business Health Dashboard
+
+Instead of only KPIs
+
+AI gives
+
+Overall Business Score
+
+Business Health
+
+84/100
+
+Sales
+
+92
+
+Inventory
+
+68
+
+Finance
+
+80
+
+Customer Satisfaction
+
+90
+
+Operations
+
+86
+2. Smart Insights
+
+Instead of graphs
+
+AI explains
+
+Example
+
+Revenue decreased because Product A was unavailable for three days.
+
+3. Root Cause Analysis
+
+Owner asks
+
+Why did revenue fall?
+
+AI
+
+compares historical data
+identifies anomalies
+explains reasons
+4. Forecasting
+
+Predict
+
+sales
+inventory demand
+expenses
+cashflow
+
+Example
+
+Expected Sales
+
+Next Week
+
+₹4.8 Lakhs
+
+Confidence
+
+91%
+5. Recommendation Engine
+
+Instead of
+
+"Inventory Low"
+
+AI says
+
+Product X will be out of stock in four days.
+
+Suggested reorder quantity:
+240 units.
+
+Preferred supplier:
+ABC Traders.
+
+6. AI Chat
+
+Owner asks
+
+Which branch performed best?
+
+AI responds instantly.
+
+Which customers haven't purchased in 30 days?
+
+AI identifies them.
+
+Which products generate the highest profit?
+
+AI answers with charts.
+
+7. Alerts
+
+Instead of checking dashboards
+
+Owner receives
+
+⚠ Profit margin dropped
+
+⚠ Employee productivity decreased
+
+⚠ Inventory anomaly detected
+
+⚠ Expenses unusually high
+
+Industries
+
+Works for
+
+Retail
+Restaurants
+Pharmacies
+Schools
+Hospitals
+Manufacturing
+Warehouses
+Hotels
+Agencies
+Salons
+AI Technologies
+LLM for natural-language explanations and recommendations.
+Time-series forecasting for sales or inventory predictions.
+Anomaly detection for identifying unusual trends.
+Rule-based insights combined with AI reasoning for reliable recommendations.
+Natural-language-to-SQL so users can ask questions conversationally.
+Tech Stack
+
+Frontend
+
+React
+TypeScript
+Tailwind CSS
+
+Backend
+
+Node.js
+Express
+
+Database
+
+PostgreSQL / Supabase
+
+AI
+
+OpenAI or Gemini
+
+Charts
+
+Recharts or Chart.js
+
+Deployment
+
+Vercel + Supabase
+Revenue Model
+
+Monthly SaaS
+
+Starter
+
+₹999/month
+
+Professional
+
+₹2,999/month
+
+Enterprise
+
+Custom pricing
+
+Scalability
+
+The platform is industry-agnostic.
+
+Only the data changes.
+
+The same AI engine can work for
+
+hospitals
+retailers
+schools
+restaurants
+manufacturing
+logistics
+Why this idea stands out
+
+Many teams will build dashboards that display numbers.
+
+Your platform goes a step further by answering three questions every business owner actually cares about:
+
+What happened?
+Why did it happen?
+What should I do next?
+
+That shifts the product from being a reporting tool to an AI-powered decision support system, which aligns directly with the official Theme 7 problem statement and demonstrates meaningful use of AI rather than simply visualizing data.
