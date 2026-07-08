@@ -1,10 +1,37 @@
 import React, { useState } from 'react';
-import { useListRecommendations, getListRecommendationsQueryKey, useUpdateRecommendation } from '@workspace/api-client-react';
+import { useListRecommendations, getListRecommendationsQueryKey, useUpdateRecommendation, useGenerateRecommendations } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Zap, Target, TrendingUp, Check, X, Clock, PlayCircle } from 'lucide-react';
+import { Zap, Target, TrendingUp, Check, X, Clock, PlayCircle, RefreshCcw, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+
+function exportToCSV(data: any[], filename: string) {
+  if (!data || !data.length) return;
+  const headers = Object.keys(data[0]);
+  const csvRows = [
+    headers.join(','),
+    ...data.map(row => 
+      headers.map(fieldName => {
+        const value = row[fieldName];
+        const stringified = typeof value === 'object' && value !== null 
+          ? JSON.stringify(value) 
+          : String(value ?? '');
+        return `"${stringified.replace(/"/g, '""')}"`;
+      }).join(',')
+    )
+  ];
+  
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 export default function Recommendations() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'in_progress'>('all');
@@ -26,6 +53,15 @@ export default function Recommendations() {
     mutation: {
       onSuccess: () => {
         toast({ title: "Status updated" });
+        queryClient.invalidateQueries({ queryKey: getListRecommendationsQueryKey() });
+      }
+    }
+  });
+
+  const generateMutation = useGenerateRecommendations({
+    mutation: {
+      onSuccess: () => {
+        toast({ title: "AI Action Plan regenerated" });
         queryClient.invalidateQueries({ queryKey: getListRecommendationsQueryKey() });
       }
     }
@@ -58,7 +94,33 @@ export default function Recommendations() {
           <Zap className="w-5 h-5 text-primary" /> Action Plan
         </h2>
         
-        <div className="flex gap-4 bg-card border border-border p-1.5 rounded-lg">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => {
+              if (recommendations) {
+                const csvData = recommendations.map(({ id, urgency, problemStatement, rootCause, action, expectedOutcome, expectedImpactPercent, status, generatedAt }) => ({
+                  id, urgency, problemStatement, rootCause, action, expectedOutcome, expectedImpactPercent, status, generatedAt
+                }));
+                exportToCSV(csvData, "recommendations.csv");
+              }
+            }}
+            disabled={!recommendations || recommendations.length === 0}
+            className="px-4 py-2 bg-secondary border border-border hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-all flex items-center gap-2 cursor-pointer text-white"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+          
+          <button
+            onClick={() => generateMutation.mutate()}
+            disabled={generateMutation.isPending}
+            className="px-4 py-2 bg-primary/20 text-primary border border-primary/30 hover:bg-primary hover:text-white disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <RefreshCcw className={`w-4 h-4 ${generateMutation.isPending ? 'animate-spin' : ''}`} />
+            Run AI Consultant
+          </button>
+          
+          <div className="flex gap-4 bg-card border border-border p-1.5 rounded-lg">
           <select 
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as any)}
@@ -81,6 +143,7 @@ export default function Recommendations() {
           </select>
         </div>
       </div>
+    </div>
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">

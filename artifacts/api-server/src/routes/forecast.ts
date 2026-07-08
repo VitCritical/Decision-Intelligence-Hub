@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { db, metricsTable, forecastsTable } from "@workspace/db";
 import { and, eq, gte } from "drizzle-orm";
 import { generateJSON } from "../lib/gemini";
+import { asyncHandler } from "../middlewares/error-handler";
 
 const router: IRouter = Router();
 
@@ -44,7 +45,7 @@ async function buildForecastSeries(metricName: string, unit: string) {
   };
 }
 
-router.get("/forecast", async (req, res): Promise<void> => {
+router.get("/forecast", asyncHandler(async (req, res): Promise<void> => {
   const [sales, inventory, expenses, cashflow] = await Promise.all([
     buildForecastSeries("sales", "INR"),
     buildForecastSeries("inventory", "units"),
@@ -59,9 +60,9 @@ router.get("/forecast", async (req, res): Promise<void> => {
     cashflow,
     generatedAt: new Date().toISOString(),
   });
-});
+}));
 
-router.post("/forecast/generate", async (req, res): Promise<void> => {
+router.post("/forecast/generate", asyncHandler(async (req, res): Promise<void> => {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -92,8 +93,8 @@ Return ONLY valid JSON.`;
 
   const forecast = await generateJSON<ForecastAI>(prompt);
 
-  // Update DB forecasts
-  await db.delete(forecastsTable);
+  // Delete only sales forecasts before inserting new ones (preserve other metrics)
+  await db.delete(forecastsTable).where(eq(forecastsTable.metricName, "sales"));
 
   const rows: Array<typeof forecastsTable.$inferInsert> = forecast.dailyForecast.map((d) => ({
     metricName: "sales",
@@ -122,6 +123,6 @@ Return ONLY valid JSON.`;
     cashflow,
     generatedAt: new Date().toISOString(),
   });
-});
+}));
 
 export default router;

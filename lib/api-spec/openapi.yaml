@@ -96,6 +96,32 @@ paths:
                 items:
                   $ref: "#/components/schemas/Insight"
 
+  /insights/read-all:
+    patch:
+      operationId: markAllInsightsRead
+      tags: [insights]
+      summary: Mark all insights as read
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /insights/clear:
+    delete:
+      operationId: clearAllInsights
+      tags: [insights]
+      summary: Clear all insights
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
   /insights/{id}/read:
     patch:
       operationId: markInsightRead
@@ -188,6 +214,21 @@ paths:
                 items:
                   $ref: "#/components/schemas/Recommendation"
 
+  /recommendations/generate:
+    post:
+      operationId: generateRecommendations
+      tags: [recommendations]
+      summary: Trigger AI to generate fresh recommendations
+      responses:
+        "200":
+          description: Generated recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Recommendation"
+
   /recommendations/{id}:
     patch:
       operationId: updateRecommendation
@@ -239,6 +280,32 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Alert"
+
+  /alerts/read-all:
+    patch:
+      operationId: markAllAlertsRead
+      tags: [alerts]
+      summary: Mark all alerts as read
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /alerts/clear:
+    delete:
+      operationId: clearAllAlerts
+      tags: [alerts]
+      summary: Clear all alerts
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
 
   /alerts/{id}/read:
     patch:

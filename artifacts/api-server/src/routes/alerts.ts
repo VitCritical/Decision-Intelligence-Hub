@@ -2,10 +2,11 @@ import { Router, type IRouter } from "express";
 import { db, alertsTable } from "@workspace/db";
 import { desc, eq, and } from "drizzle-orm";
 import { ListAlertsQueryParams } from "@workspace/api-zod";
+import { asyncHandler, HttpError } from "../middlewares/error-handler";
 
 const router: IRouter = Router();
 
-router.get("/alerts", async (req, res): Promise<void> => {
+router.get("/alerts", asyncHandler(async (req, res): Promise<void> => {
   const query = ListAlertsQueryParams.safeParse(req.query);
   const conditions = [];
 
@@ -30,11 +31,25 @@ router.get("/alerts", async (req, res): Promise<void> => {
       triggeredAt: r.triggeredAt.toISOString(),
     }))
   );
-});
+}));
 
-router.patch("/alerts/:id/read", async (req, res): Promise<void> => {
+router.patch("/alerts/read-all", asyncHandler(async (req, res): Promise<void> => {
+  await db.update(alertsTable).set({ isRead: true });
+  res.json({ success: true, message: "All alerts marked as read" });
+}));
+
+router.delete("/alerts/clear", asyncHandler(async (req, res): Promise<void> => {
+  await db.delete(alertsTable);
+  res.json({ success: true, message: "All alerts cleared" });
+}));
+
+router.patch("/alerts/:id/read", asyncHandler(async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
+
+  if (Number.isNaN(id) || id <= 0) {
+    throw new HttpError(400, "Invalid alert ID — must be a positive integer");
+  }
 
   const [updated] = await db
     .update(alertsTable)
@@ -43,8 +58,7 @@ router.patch("/alerts/:id/read", async (req, res): Promise<void> => {
     .returning();
 
   if (!updated) {
-    res.status(404).json({ error: "Alert not found" });
-    return;
+    throw new HttpError(404, "Alert not found");
   }
 
   res.json({
@@ -53,6 +67,6 @@ router.patch("/alerts/:id/read", async (req, res): Promise<void> => {
     threshold: Number(updated.threshold),
     triggeredAt: updated.triggeredAt.toISOString(),
   });
-});
+}));
 
 export default router;

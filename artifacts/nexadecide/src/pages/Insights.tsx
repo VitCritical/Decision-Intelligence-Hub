@@ -1,14 +1,42 @@
 import React, { useState } from 'react';
 import { 
   useListInsights, getListInsightsQueryKey, 
-  useGenerateInsights, useMarkInsightRead 
+  useGenerateInsights, useMarkInsightRead,
+  useMarkAllInsightsRead, useClearAllInsights
 } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { RefreshCcw, Check, ArrowRight, Lightbulb } from 'lucide-react';
+import { RefreshCcw, Check, ArrowRight, Lightbulb, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'wouter';
+
+function exportToCSV(data: any[], filename: string) {
+  if (!data || !data.length) return;
+  const headers = Object.keys(data[0]);
+  const csvRows = [
+    headers.join(','),
+    ...data.map(row => 
+      headers.map(fieldName => {
+        const value = row[fieldName];
+        const stringified = typeof value === 'object' && value !== null 
+          ? JSON.stringify(value) 
+          : String(value ?? '');
+        return `"${stringified.replace(/"/g, '""')}"`;
+      }).join(',')
+    )
+  ];
+  
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 export default function Insights() {
   const [filter, setFilter] = useState<'all' | 'critical' | 'warning' | 'positive'>('all');
@@ -33,6 +61,22 @@ export default function Insights() {
   });
 
   const markReadMutation = useMarkInsightRead({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListInsightsQueryKey() });
+      }
+    }
+  });
+
+  const readAllMutation = useMarkAllInsightsRead({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListInsightsQueryKey() });
+      }
+    }
+  });
+
+  const clearAllMutation = useClearAllInsights({
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListInsightsQueryKey() });
@@ -77,14 +121,51 @@ export default function Insights() {
           ))}
         </div>
         
-        <button 
-          onClick={() => generateMutation.mutate()}
-          disabled={generateMutation.isPending}
-          className="flex items-center gap-2 px-4 py-2 bg-secondary text-white border border-border hover:border-primary/50 hover:bg-secondary/80 rounded-md text-sm font-medium transition-colors disabled:opacity-50"
-        >
-          <RefreshCcw className={`w-4 h-4 ${generateMutation.isPending ? 'animate-spin' : ''}`} />
-          Regenerate with AI
-        </button>
+        <div className="flex items-center gap-3">
+          {insights && insights.length > 0 && (
+            <>
+              <button
+                onClick={() => {
+                  const csvData = insights.map(({ id, severity, category, title, explanation, relatedMetric, generatedAt, isRead }) => ({
+                    id, severity, category, title, explanation, relatedMetric, generatedAt, isRead
+                  }));
+                  exportToCSV(csvData, "insights.csv");
+                }}
+                className="px-3 py-2 bg-secondary border border-border hover:bg-white/10 text-white rounded-md text-sm font-medium transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Export CSV
+              </button>
+              <button
+                onClick={() => readAllMutation.mutate()}
+                disabled={readAllMutation.isPending}
+                className="px-3 py-2 bg-secondary border border-border hover:bg-white/10 text-white rounded-md text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Mark all read
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm("Are you sure you want to clear all insights?")) {
+                    clearAllMutation.mutate();
+                  }
+                }}
+                disabled={clearAllMutation.isPending}
+                className="px-3 py-2 bg-destructive/20 hover:bg-destructive text-destructive hover:text-white border border-destructive/30 rounded-md text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Clear all
+              </button>
+            </>
+          )}
+          
+          <button 
+            onClick={() => generateMutation.mutate()}
+            disabled={generateMutation.isPending}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white border border-border hover:bg-primary/90 rounded-md text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+          >
+            <RefreshCcw className={`w-4 h-4 ${generateMutation.isPending ? 'animate-spin' : ''}`} />
+            Regenerate with AI
+          </button>
+        </div>
       </div>
 
       {isLoading ? (

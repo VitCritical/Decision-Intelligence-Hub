@@ -3,10 +3,11 @@ import { db, metricsTable } from "@workspace/db";
 import { and, eq, gte, desc } from "drizzle-orm";
 import { ListMetricsQueryParams } from "@workspace/api-zod";
 import { seedDatabase } from "../lib/seed";
+import { asyncHandler } from "../middlewares/error-handler";
 
 const router: IRouter = Router();
 
-router.get("/metrics", async (req, res): Promise<void> => {
+router.get("/metrics", asyncHandler(async (req, res): Promise<void> => {
   const query = ListMetricsQueryParams.safeParse(req.query);
   const conditions = [];
 
@@ -32,11 +33,11 @@ router.get("/metrics", async (req, res): Promise<void> => {
       value: Number(r.value),
     }))
   );
-});
+}));
 
-router.post("/metrics/seed", async (req, res): Promise<void> => {
+router.post("/metrics/seed", asyncHandler(async (req, res): Promise<void> => {
   await seedDatabase();
   res.json({ success: true, message: "Database seeded successfully" });
-});
+}));
 
 export default router;

@@ -3,10 +3,11 @@ import { db, metricsTable, insightsTable } from "@workspace/db";
 import { desc, eq, and, gte } from "drizzle-orm";
 import { generateJSON } from "../lib/gemini";
 import { ListInsightsQueryParams, MarkInsightReadParams } from "@workspace/api-zod";
+import { asyncHandler, HttpError } from "../middlewares/error-handler";
 
 const router: IRouter = Router();
 
-router.get("/insights", async (req, res): Promise<void> => {
+router.get("/insights", asyncHandler(async (req, res): Promise<void> => {
   const query = ListInsightsQueryParams.safeParse(req.query);
   const conditions = [];
   if (query.success && query.data.severity) {
@@ -23,9 +24,9 @@ router.get("/insights", async (req, res): Promise<void> => {
     .orderBy(desc(insightsTable.generatedAt));
 
   res.json(rows.map((r) => ({ ...r, generatedAt: r.generatedAt.toISOString() })));
-});
+}));
 
-router.post("/insights/generate", async (req, res): Promise<void> => {
+router.post("/insights/generate", asyncHandler(async (req, res): Promise<void> => {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -72,11 +73,25 @@ Return ONLY valid JSON array, no markdown.`;
     .returning();
 
   res.json(inserted.map((r) => ({ ...r, generatedAt: r.generatedAt.toISOString() })));
-});
+}));
 
-router.patch("/insights/:id/read", async (req, res): Promise<void> => {
+router.patch("/insights/read-all", asyncHandler(async (req, res): Promise<void> => {
+  await db.update(insightsTable).set({ isRead: true });
+  res.json({ success: true, message: "All insights marked as read" });
+}));
+
+router.delete("/insights/clear", asyncHandler(async (req, res): Promise<void> => {
+  await db.delete(insightsTable);
+  res.json({ success: true, message: "All insights cleared" });
+}));
+
+router.patch("/insights/:id/read", asyncHandler(async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
+
+  if (Number.isNaN(id) || id <= 0) {
+    throw new HttpError(400, "Invalid insight ID — must be a positive integer");
+  }
 
   const [updated] = await db
     .update(insightsTable)
@@ -85,11 +100,10 @@ router.patch("/insights/:id/read", async (req, res): Promise<void> => {
     .returning();
 
   if (!updated) {
-    res.status(404).json({ error: "Insight not found" });
-    return;
+    throw new HttpError(404, "Insight not found");
   }
 
   res.json({ ...updated, generatedAt: updated.generatedAt.toISOString() });
-});
+}));
 
 export default router;

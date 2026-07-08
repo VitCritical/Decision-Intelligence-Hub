@@ -2,10 +2,11 @@ import { Router, type IRouter } from "express";
 import { db, metricsTable } from "@workspace/db";
 import { and, eq, gte } from "drizzle-orm";
 import { generateJSON } from "../lib/gemini";
+import { asyncHandler } from "../middlewares/error-handler";
 
 const router: IRouter = Router();
 
-router.get("/root-cause/:metricName", async (req, res): Promise<void> => {
+router.get("/root-cause/:metricName", asyncHandler(async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.metricName) ? req.params.metricName[0] : req.params.metricName;
   const metricName = decodeURIComponent(raw);
 
@@ -75,7 +76,7 @@ router.get("/root-cause/:metricName", async (req, res): Promise<void> => {
     historicalData,
     recommendation: analysis.recommendation,
   });
-});
+}));
 
 function buildPrompt(metricName: string, data: string): string {
   return `You are a root cause analyst for "Arjun General Store", a retail business in India.

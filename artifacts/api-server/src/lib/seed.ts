@@ -5,6 +5,7 @@ import {
   recommendationsTable,
   alertsTable,
   forecastsTable,
+  chatMessagesTable,
 } from "@workspace/db";
 import { logger } from "./logger";
 
@@ -25,6 +26,14 @@ function addDays(date: Date, n: number): Date {
 }
 
 export async function seedDatabase(): Promise<void> {
+  logger.info("Clearing existing database tables...");
+  await db.delete(forecastsTable);
+  await db.delete(alertsTable);
+  await db.delete(recommendationsTable);
+  await db.delete(insightsTable);
+  await db.delete(chatMessagesTable);
+  await db.delete(metricsTable);
+
   logger.info("Seeding database with mock business data...");
 
   // ─── Metrics: 90 days of sales ──────────────────────────────────────────────

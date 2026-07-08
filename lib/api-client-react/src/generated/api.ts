@@ -374,6 +374,146 @@ export const useGenerateInsights = <TError = ErrorType<unknown>,
       return useMutation(getGenerateInsightsMutationOptions(options));
     }
 
+export const getMarkAllInsightsReadUrl = () => {
+
+
+
+
+  return `/api/insights/read-all`
+}
+
+/**
+ * @summary Mark all insights as read
+ */
+export const markAllInsightsRead = async ( options?: RequestInit): Promise<SuccessResponse> => {
+
+  return customFetch<SuccessResponse>(getMarkAllInsightsReadUrl(),
+  {
+    ...options,
+    method: 'PATCH'
+
+
+  }
+);}
+
+
+
+
+export const getMarkAllInsightsReadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markAllInsightsRead>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof markAllInsightsRead>>, TError,void, TContext> => {
+
+const mutationKey = ['markAllInsightsRead'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof markAllInsightsRead>>, void> = () => {
+
+
+          return  markAllInsightsRead(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type MarkAllInsightsReadMutationResult = NonNullable<Awaited<ReturnType<typeof markAllInsightsRead>>>
+
+    export type MarkAllInsightsReadMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Mark all insights as read
+ */
+export const useMarkAllInsightsRead = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markAllInsightsRead>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof markAllInsightsRead>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getMarkAllInsightsReadMutationOptions(options));
+    }
+
+export const getClearAllInsightsUrl = () => {
+
+
+
+
+  return `/api/insights/clear`
+}
+
+/**
+ * @summary Clear all insights
+ */
+export const clearAllInsights = async ( options?: RequestInit): Promise<SuccessResponse> => {
+
+  return customFetch<SuccessResponse>(getClearAllInsightsUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getClearAllInsightsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof clearAllInsights>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof clearAllInsights>>, TError,void, TContext> => {
+
+const mutationKey = ['clearAllInsights'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof clearAllInsights>>, void> = () => {
+
+
+          return  clearAllInsights(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ClearAllInsightsMutationResult = NonNullable<Awaited<ReturnType<typeof clearAllInsights>>>
+
+    export type ClearAllInsightsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Clear all insights
+ */
+export const useClearAllInsights = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof clearAllInsights>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof clearAllInsights>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getClearAllInsightsMutationOptions(options));
+    }
+
 export const getMarkInsightReadUrl = (id: number,) => {
 
 
@@ -752,6 +892,76 @@ export function useListRecommendations<TData = Awaited<ReturnType<typeof listRec
 
 
 
+export const getGenerateRecommendationsUrl = () => {
+
+
+
+
+  return `/api/recommendations/generate`
+}
+
+/**
+ * @summary Trigger AI to generate fresh recommendations
+ */
+export const generateRecommendations = async ( options?: RequestInit): Promise<Recommendation[]> => {
+
+  return customFetch<Recommendation[]>(getGenerateRecommendationsUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getGenerateRecommendationsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateRecommendations>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateRecommendations>>, TError,void, TContext> => {
+
+const mutationKey = ['generateRecommendations'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateRecommendations>>, void> = () => {
+
+
+          return  generateRecommendations(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateRecommendationsMutationResult = NonNullable<Awaited<ReturnType<typeof generateRecommendations>>>
+
+    export type GenerateRecommendationsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Trigger AI to generate fresh recommendations
+ */
+export const useGenerateRecommendations = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateRecommendations>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateRecommendations>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getGenerateRecommendationsMutationOptions(options));
+    }
+
 export const getUpdateRecommendationUrl = (id: number,) => {
 
 
@@ -906,6 +1116,146 @@ export function useListAlerts<TData = Awaited<ReturnType<typeof listAlerts>>, TE
 
 
 
+
+export const getMarkAllAlertsReadUrl = () => {
+
+
+
+
+  return `/api/alerts/read-all`
+}
+
+/**
+ * @summary Mark all alerts as read
+ */
+export const markAllAlertsRead = async ( options?: RequestInit): Promise<SuccessResponse> => {
+
+  return customFetch<SuccessResponse>(getMarkAllAlertsReadUrl(),
+  {
+    ...options,
+    method: 'PATCH'
+
+
+  }
+);}
+
+
+
+
+export const getMarkAllAlertsReadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markAllAlertsRead>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof markAllAlertsRead>>, TError,void, TContext> => {
+
+const mutationKey = ['markAllAlertsRead'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof markAllAlertsRead>>, void> = () => {
+
+
+          return  markAllAlertsRead(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type MarkAllAlertsReadMutationResult = NonNullable<Awaited<ReturnType<typeof markAllAlertsRead>>>
+
+    export type MarkAllAlertsReadMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Mark all alerts as read
+ */
+export const useMarkAllAlertsRead = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof markAllAlertsRead>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof markAllAlertsRead>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getMarkAllAlertsReadMutationOptions(options));
+    }
+
+export const getClearAllAlertsUrl = () => {
+
+
+
+
+  return `/api/alerts/clear`
+}
+
+/**
+ * @summary Clear all alerts
+ */
+export const clearAllAlerts = async ( options?: RequestInit): Promise<SuccessResponse> => {
+
+  return customFetch<SuccessResponse>(getClearAllAlertsUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getClearAllAlertsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof clearAllAlerts>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof clearAllAlerts>>, TError,void, TContext> => {
+
+const mutationKey = ['clearAllAlerts'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof clearAllAlerts>>, void> = () => {
+
+
+          return  clearAllAlerts(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ClearAllAlertsMutationResult = NonNullable<Awaited<ReturnType<typeof clearAllAlerts>>>
+
+    export type ClearAllAlertsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Clear all alerts
+ */
+export const useClearAllAlerts = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof clearAllAlerts>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof clearAllAlerts>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getClearAllAlertsMutationOptions(options));
+    }
 
 export const getMarkAlertReadUrl = (id: number,) => {
 

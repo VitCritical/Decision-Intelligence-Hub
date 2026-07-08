@@ -1,9 +1,35 @@
-import React from 'react';
-import { useListAlerts, getListAlertsQueryKey, useMarkAlertRead } from '@workspace/api-client-react';
+import { useListAlerts, getListAlertsQueryKey, useMarkAlertRead, useMarkAllAlertsRead, useClearAllAlerts } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, AlertCircle, Info, Check, Clock } from 'lucide-react';
+import { AlertTriangle, AlertCircle, Info, Check, Clock, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
+
+function exportToCSV(data: any[], filename: string) {
+  if (!data || !data.length) return;
+  const headers = Object.keys(data[0]);
+  const csvRows = [
+    headers.join(','),
+    ...data.map(row => 
+      headers.map(fieldName => {
+        const value = row[fieldName];
+        const stringified = typeof value === 'object' && value !== null 
+          ? JSON.stringify(value) 
+          : String(value ?? '');
+        return `"${stringified.replace(/"/g, '""')}"`;
+      }).join(',')
+    )
+  ];
+  
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 export default function Alerts() {
   const queryClient = useQueryClient();
@@ -13,6 +39,22 @@ export default function Alerts() {
   });
 
   const markReadMutation = useMarkAlertRead({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListAlertsQueryKey() });
+      }
+    }
+  });
+
+  const readAllMutation = useMarkAllAlertsRead({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListAlertsQueryKey() });
+      }
+    }
+  });
+
+  const clearAllMutation = useClearAllAlerts({
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListAlertsQueryKey() });
@@ -45,9 +87,45 @@ export default function Alerts() {
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-6">
-      <div>
-        <h2 className="text-2xl font-bold text-white mb-2">Alerts Center</h2>
-        <p className="text-muted-foreground">Monitor and manage critical business events</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-2">Alerts Center</h2>
+          <p className="text-muted-foreground">Monitor and manage critical business events</p>
+        </div>
+        {sortedAlerts.length > 0 && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                const csvData = sortedAlerts.map(({ id, severity, title, explanation, metricName, metricValue, threshold, triggeredAt, isRead }) => ({
+                  id, severity, title, explanation, metricName, metricValue, threshold, triggeredAt, isRead
+                }));
+                exportToCSV(csvData, "alerts.csv");
+              }}
+              className="px-3 py-1.5 text-xs font-semibold bg-secondary border border-border hover:bg-white/10 text-white rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Export CSV
+            </button>
+            <button
+              onClick={() => readAllMutation.mutate()}
+              disabled={readAllMutation.isPending}
+              className="px-3 py-1.5 text-xs font-semibold bg-secondary border border-border hover:bg-white/10 text-white rounded-lg transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Mark all read
+            </button>
+            <button
+              onClick={() => {
+                if (confirm("Are you sure you want to clear all alerts?")) {
+                  clearAllMutation.mutate();
+                }
+              }}
+              disabled={clearAllMutation.isPending}
+              className="px-3 py-1.5 text-xs font-semibold bg-destructive/20 hover:bg-destructive text-destructive hover:text-white border border-destructive/30 rounded-lg transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
       </div>
 
       {!sortedAlerts.length ? (

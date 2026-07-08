@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db, metricsTable, insightsTable, alertsTable, forecastsTable } from "@workspace/db";
 import { desc, eq, and, gte, sql } from "drizzle-orm";
+import { asyncHandler } from "../middlewares/error-handler";
 
 const router: IRouter = Router();
 
@@ -25,7 +26,7 @@ function trendDir(recent: number[], older: number[]): "up" | "down" | "stable" {
   return "stable";
 }
 
-router.get("/dashboard", async (req, res): Promise<void> => {
+router.get("/dashboard", asyncHandler(async (req, res): Promise<void> => {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const sixtyDaysAgo = new Date();
@@ -150,6 +151,6 @@ router.get("/dashboard", async (req, res): Promise<void> => {
     forecastPreview,
     salesLast7Days: salesLast7.map((m) => ({ date: m.date, value: Number(m.value) })),
   });
-});
+}));
 
 export default router;

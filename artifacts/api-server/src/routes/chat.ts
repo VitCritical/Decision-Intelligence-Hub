@@ -3,36 +3,46 @@ import { db, chatMessagesTable, metricsTable, insightsTable, recommendationsTabl
 import { desc, eq, gte } from "drizzle-orm";
 import { generateChatResponse } from "../lib/gemini";
 import { SendChatMessageBody } from "@workspace/api-zod";
+import { asyncHandler, HttpError } from "../middlewares/error-handler";
 
 const router: IRouter = Router();
 
-const SYSTEM_PROMPT = `You are NexaDecide AI, an intelligent business analyst for "Arjun General Store" — a retail store in India. 
+async function buildDynamicSystemPrompt(): Promise<string> {
+  const recentMetrics = await db
+    .select()
+    .from(metricsTable)
+    .orderBy(desc(metricsTable.date));
+
+  // Deduplicate by category + metricName to get the latest value for each
+  const latestMetrics: Record<string, typeof metricsTable.$inferSelect> = {};
+  for (const m of recentMetrics) {
+    const key = `${m.category}:${m.metricName}`;
+    if (!latestMetrics[key]) {
+      latestMetrics[key] = m;
+    }
+  }
+
+  // Format the metrics into a list
+  const metricsSummary = Object.values(latestMetrics)
+    .map((m) => `- [${m.category.toUpperCase()}] ${m.metricName}: ${Number(m.value).toLocaleString("en-IN")} ${m.unit} (as of ${m.date})`)
+    .join("\n");
+
+  return `You are NexaDecide AI, an intelligent business analyst for "Arjun General Store" — a retail store in India. 
 You have access to real business data: sales, inventory, finance, customer, and operations metrics.
 
-Key business facts you know:
-- Business: Arjun General Store (Retail, India)
-- Current business health score: ~78/100
-- Critical issue: Product A (Rice 5kg) is out of stock — causing 18% daily revenue loss
-- Customer retention has declined from 88% to 76% over 90 days
-- 47 customers inactive in last 30 days
-- 3 more products (C, D, I) near stockout within 4 days
-- Monthly expenses spiked 22% last month to ₹2,33,000
-- Profit margin: 18.4% (above industry benchmark)
-- Orders per day: ~74
-- Average order value: ₹842
-- Weekend revenue is consistently 16% higher than weekdays
-- Top revenue products: H (Biscuits) and K (Chips) at 31% of revenue combined
+Here is the LATEST real-time data from the store database:
+${metricsSummary}
 
-Answer business questions concisely and helpfully. Be specific with numbers. 
+Answer business questions concisely and helpfully. Be specific with numbers and refer directly to the actual data shown above.
 If asked about data you don't have, give your best analysis based on the context above.
 Keep responses under 120 words unless asked for detail.
 Do not use bullet points unless asked. Write in natural, professional language.`;
+}
 
-router.post("/chat/messages", async (req, res): Promise<void> => {
+router.post("/chat/messages", asyncHandler(async (req, res): Promise<void> => {
   const body = SendChatMessageBody.safeParse(req.body);
   if (!body.success) {
-    res.status(400).json({ error: body.error.message });
-    return;
+    throw new HttpError(400, body.error.message);
   }
 
   // Save user message
@@ -56,7 +66,8 @@ router.post("/chat/messages", async (req, res): Promise<void> => {
       parts: m.content,
     }));
 
-  const aiText = await generateChatResponse(SYSTEM_PROMPT, chatHistory, body.data.message);
+  const dynamicPrompt = await buildDynamicSystemPrompt();
+  const aiText = await generateChatResponse(dynamicPrompt, chatHistory, body.data.message);
 
   const [assistantMsg] = await db
     .insert(chatMessagesTable)
@@ -67,9 +78,9 @@ router.post("/chat/messages", async (req, res): Promise<void> => {
     userMessage: { ...userMsg, createdAt: userMsg.createdAt.toISOString() },
     assistantMessage: { ...assistantMsg, createdAt: assistantMsg.createdAt.toISOString() },
   });
-});
+}));
 
-router.get("/chat/history", async (req, res): Promise<void> => {
+router.get("/chat/history", asyncHandler(async (req, res): Promise<void> => {
   const rows = await db
     .select()
     .from(chatMessagesTable)
@@ -77,11 +88,11 @@ router.get("/chat/history", async (req, res): Promise<void> => {
     .limit(100);
 
   res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
-});
+}));
 
-router.delete("/chat/history", async (req, res): Promise<void> => {
+router.delete("/chat/history", asyncHandler(async (req, res): Promise<void> => {
   await db.delete(chatMessagesTable);
   res.json({ success: true, message: "Chat history cleared" });
-});
+}));
 
 export default router;

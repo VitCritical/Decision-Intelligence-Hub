@@ -122,6 +122,24 @@ export const GenerateInsightsResponse = zod.array(GenerateInsightsResponseItem)
 
 
 /**
+ * @summary Mark all insights as read
+ */
+export const MarkAllInsightsReadResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().optional()
+})
+
+
+/**
+ * @summary Clear all insights
+ */
+export const ClearAllInsightsResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().optional()
+})
+
+
+/**
  * @summary Mark an insight as read
  */
 export const MarkInsightReadParams = zod.object({
@@ -316,6 +334,23 @@ export const ListRecommendationsResponse = zod.array(ListRecommendationsResponse
 
 
 /**
+ * @summary Trigger AI to generate fresh recommendations
+ */
+export const GenerateRecommendationsResponseItem = zod.object({
+  "id": zod.number(),
+  "urgency": zod.enum(['high', 'medium', 'low']),
+  "problemStatement": zod.string(),
+  "rootCause": zod.string(),
+  "action": zod.string(),
+  "expectedOutcome": zod.string(),
+  "expectedImpactPercent": zod.number(),
+  "status": zod.enum(['pending', 'in_progress', 'done', 'dismissed']),
+  "generatedAt": zod.string()
+})
+export const GenerateRecommendationsResponse = zod.array(GenerateRecommendationsResponseItem)
+
+
+/**
  * @summary Update recommendation status
  */
 export const UpdateRecommendationParams = zod.object({
@@ -359,6 +394,24 @@ export const ListAlertsResponseItem = zod.object({
   "isRead": zod.boolean()
 })
 export const ListAlertsResponse = zod.array(ListAlertsResponseItem)
+
+
+/**
+ * @summary Mark all alerts as read
+ */
+export const MarkAllAlertsReadResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().optional()
+})
+
+
+/**
+ * @summary Clear all alerts
+ */
+export const ClearAllAlertsResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().optional()
+})
 
 
 /**
